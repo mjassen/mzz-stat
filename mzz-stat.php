@@ -20,9 +20,6 @@ CREATE TABLE `mzzstat` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 
-
-
-
 */
 
 add_action( 'wp_footer', 'mzz_include_mzzstat', 99 );
@@ -39,4 +36,26 @@ $mzz_finished_query = mysqli_query($mzz_mysqli_object, $mzz_query_statement) or 
 mysqli_close($mzz_mysqli_object);
 	
 }
+
+
+add_shortcode( 'mzz-stat', 'mzz_shortcode_mzzstat' );
+
+function mzz_shortcode_mzzstat() {
+    
+$mzz_mysqli_object_2 = mysqli_connect("localhost", "boston", "redsox", "werdpresdb");
+
+$mzz_calculate_total_hits = "SELECT count(id) AS mzz_total_count FROM mzzstat";
+
+$mzz_number_counted = mysqli_query($mzz_mysqli_object_2, $mzz_calculate_total_hits) or die(mysqli_error($mzz_mysqli_object_2));
+
+while ($mzz_current_tally = mysqli_fetch_array($mzz_number_counted)) {
+	$mzz_total_tally = $mzz_current_tally['mzz_total_count'];
+}
+
+mysqli_close($mzz_mysqli_object_2);    
+    
+return 'Total page hits: ' . $mzz_total_tally;
+        
+}
+
 ?>
