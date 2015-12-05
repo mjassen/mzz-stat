@@ -2,6 +2,10 @@
 
 ==Changelog==
 
+= 20151204.2108 =
+* 04 December 2015 by mjassen
+* Changed the footer stat insert code to use native WordPress database call.
+
 = 20151124.1 = 
 * 24 November 2015 by mjassen
 * Changed the shortcode display code to use native WordPress database call.
