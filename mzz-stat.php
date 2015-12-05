@@ -25,7 +25,7 @@ CREATE TABLE `wp_mzzstat` (
 add_action( 'wp_footer', 'mzz_include_mzzstat', 99 );
 
 
-//the mzz_include_mzzstat() function includes this code in the wordpress footer. thus any time any page on the wordpress site is browsed, the function is executed. the mzz_include_mzzstat() function inserts into the mzzstat (or wp_mzzstat or xx_mzzstat) the uri visited, and the date and time.
+//the mzz_include_mzzstat() function includes this code in the WordPress footer. thus any time any page on the WordPress site is browsed, the function is executed. the mzz_include_mzzstat() function inserts into the mzzstat (or wp_mzzstat or xx_mzzstat) the uri visited, and the date and time.
  
 function mzz_include_mzzstat() {
 
@@ -46,7 +46,7 @@ $wpdb->insert(
 }
 
 
-//adds the mzz_shortcode_mzzstat function to wordpress
+//adds the mzz_shortcode_mzzstat function to WordPress
 add_shortcode( 'mzz-stat', 'mzz_shortcode_mzzstat' );
 
 //the mzz_shortcode_mzzstat function displays the total hits to any page on the website, on any post or page where the [mzz-stat] is.
