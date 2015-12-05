@@ -2,6 +2,10 @@
 
 ==Changelog==
 
+= 20151205.1008 =
+* 05 December 2015 by mjassen
+* added uninstall.php script that properly removes the mzzstat database table. Upon clicking Delete for the plugin. (In the plugins area of the WP dashboard, after having deactivated the plugin, upon clicking the Delete link.)
+
 = 20151204.2108 =
 * 04 December 2015 by mjassen
 * Changed the footer stat insert code to use native WordPress database call.
