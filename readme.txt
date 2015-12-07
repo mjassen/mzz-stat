@@ -5,6 +5,10 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 ==Changelog==
 
+= 20151206.2043 =
+* 06 December 2015 by mjassen
+* added database install code script that installs the mzzstat database table if it doesn't already exist.
+
 = 20151205.1008 =
 * 05 December 2015 by mjassen
 * added uninstall.php script that properly removes the mzzstat database table. Upon clicking Delete for the plugin. (In the plugins area of the WP dashboard, after having deactivated the plugin, upon clicking the Delete link.)
