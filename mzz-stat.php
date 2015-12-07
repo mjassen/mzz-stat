@@ -1,12 +1,12 @@
 <?php
 /**
-* Plugin Name: Mzz-stat
+* Plugin Name: mzz-stat
 * Plugin URI: https://github.com/mjassen/mzz-stat
 * Description: A plugin that records statistics for a WordPress site.
 * Version: 
 * Author: mjassen
 * Author URI: http://wieldlinux.com/
-* License: MIT
+* License: GPLv2
 */
 
 
