@@ -10,17 +10,28 @@
 */
 
 
+/* Install database table if it doesn't already exist*/
+function mzz_install_db_table(){
+global $wpdb;
 
-/*
 
-CREATE TABLE `wp_mzzstat` (
- `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
- `mzzstat_uri` text NOT NULL,
- `mzzstat_date` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-)
+	$table_name = $wpdb->prefix . 'mzzstat';
 
-*/
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		id bigint(20) NOT NULL AUTO_INCREMENT,
+		mzzstat_uri text NOT NULL,
+		mzzstat_date datetime NOT NULL,
+		UNIQUE KEY id (id)
+	);";
+
+	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+	dbDelta( $sql );
+
+}
+
+mzz_install_db_table();
+
+
 
 add_action( 'wp_footer', 'mzz_include_mzzstat', 99 );
 
