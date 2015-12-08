@@ -5,6 +5,11 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 ==Changelog==
 
+= 20151207.2118 =
+* 07 December 2015 by mjjojo(mjassen)
+* Streamlined database install logic to run not with every plugin call but rather only during activation on install hook.
+* Under the WP dashboard > Tools admin menu, added a menu item to a dashboard page for site administrators. The Mzz-stat admin page displays the Mzz-stat statistics like total site visitor count.
+* As the statistics are now shown in the new admin page, removed the shortcode logic so now the stats can't be viewed via a shortcode. 
 = 20151206.2043 =
 * 06 December 2015 by mjassen
 * added database install code script that installs the mzzstat database table if it doesn't already exist.
