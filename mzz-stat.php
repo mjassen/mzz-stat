@@ -4,14 +4,31 @@
 * Plugin URI: https://github.com/mjassen/mzz-stat
 * Description: A plugin that records statistics for a WordPress site.
 * Version: 
-* Author: mjassen
+* Author: Morgan Jassen
 * Author URI: http://wieldlinux.com/
 * License: GPLv2
 */
 
+/*  Copyright 2015  Morgan Jassen  (email : morgan.jassen@gmail.com)
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, see <http://www.gnu.org/licenses/>
+*/
 
 /* Install database table if it doesn't already exist*/
-function mzz_install_db_table(){
+register_activation_hook( __FILE__, 'mzz_mzzstat_install' );
+
+function mzz_mzzstat_install() {
 global $wpdb;
 
 
@@ -26,10 +43,8 @@ global $wpdb;
 
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	dbDelta( $sql );
-
 }
 
-mzz_install_db_table();
 
 
 
@@ -57,20 +72,35 @@ $wpdb->insert(
 }
 
 
-//adds the mzz_shortcode_mzzstat function to WordPress
-add_shortcode( 'mzz-stat', 'mzz_shortcode_mzzstat' );
 
-//the mzz_shortcode_mzzstat function displays the total hits to any page on the website, on any post or page where the [mzz-stat] is.
-function mzz_shortcode_mzzstat() {
 
-global $wpdb;
 
-$mzz_table_name = $wpdb->prefix . "mzzstat";
+// Add an entry for our Mzz-stat admin page to the tools menu
+add_action('admin_menu', 'mzz_mzzstat_dashboard');
+function mzz_mzzstat_dashboard() {
+    add_management_page( 'Mzz-stat Admin Page', 'Mzz-stat', 'manage_options',
+        'mzz_mzzstat_admin', 'mzz_mzzstat_admin_page' );
+}
 
-$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name" );
 
-return 'Total page hits: ' . $mzz_total_tally;
-        
+// Draw the Mzz-stat admin page. The mzz_mzzstat_admin_page function contains the Mzz-stat Admin page, which is used to display the stats. One of the main stats is the total hits to any page on the website.
+function mzz_mzzstat_admin_page() {
+    ?>
+    <div class="wrap">
+        <h2>Mzz-stat</h2>
+    	<?php
+	// Find tally of total page hits for all WordPress site pages from the database
+	global $wpdb;
+
+	$mzz_table_name = $wpdb->prefix . "mzzstat";
+
+	$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name" );
+
+	echo 'Total website hits: ' . $mzz_total_tally;
+    	?>
+    </div>
+    <?php
+
 }
 
 ?>
