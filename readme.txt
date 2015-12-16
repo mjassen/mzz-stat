@@ -5,6 +5,10 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 ==Changelog==
 
+= 20151215.2133 =
+* 15 December 2015 by mjjojo(mjassen)
+* Added more info to the dashboard. added top 20 latest hits data displayed.
+
 = 20151207.2118 =
 * 07 December 2015 by mjjojo(mjassen)
 * Streamlined database install logic to run not with every plugin call but rather only during activation on install hook.
