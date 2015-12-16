@@ -1,9 +1,9 @@
 <?php
 /**
-* Plugin Name: mzz-stat
+* Plugin Name: Mzz-stat
 * Plugin URI: https://github.com/mjassen/mzz-stat
 * Description: A plugin that records statistics for a WordPress site.
-* Version: 
+* Version: 20151215.2133
 * Author: Morgan Jassen
 * Author URI: http://wieldlinux.com/
 * License: GPLv2
@@ -96,8 +96,24 @@ function mzz_mzzstat_admin_page() {
 
 	$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name" );
 
-	echo 'Total website hits: ' . $mzz_total_tally;
-    	?>
+	echo 'Total website hits: ' . $mzz_total_tally . '<br/><br/>';
+
+
+
+
+
+	$mj_mzz_results = $wpdb->get_results( 
+	"SELECT mzzstat_date, mzzstat_uri FROM $mzz_table_name WHERE mzzstat_date > DATE_SUB(now(),INTERVAL 1 MONTH) ORDER BY mzzstat_date DESC LIMIT 0,20");
+
+	echo 'Details of the 20 most recent hits:<br/>';
+
+	foreach ( $mj_mzz_results as $mj_mzz_result ) 
+	{
+		echo $mj_mzz_result->mzzstat_date . ' | ' . $mj_mzz_result->mzzstat_uri . '<br/>';
+	}
+
+
+	?>
     </div>
     <?php
 
