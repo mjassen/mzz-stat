@@ -5,6 +5,10 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 ==Changelog==
 
+= 20151220.0953 =
+* 20 December 2015 by mjjojo(mjassen)
+* Changed what info is shown in the dashboard. Now shows page hits count in the last month for each page that was requested.
+
 = 20151215.2133 =
 * 15 December 2015 by mjjojo(mjassen)
 * Added more info to the dashboard. added top 20 latest hits data displayed.
