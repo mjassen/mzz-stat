@@ -94,22 +94,30 @@ function mzz_mzzstat_admin_page() {
 
 	$mzz_table_name = $wpdb->prefix . "mzzstat";
 
-	$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name" );
+	//select all records older than 24-hours-from-now
+	$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date < DATE_ADD(NOW(), INTERVAL 86400 SECOND)" );
 
 	echo 'Total website hits (All time): ' . $mzz_total_tally . '<br/><br/>';
 
+
+
+
 	echo '-------------------------------------------<br/><br/>';
 
-	$mj_mzz_results = $wpdb->get_results("SELECT COUNT(id) AS monthly_hit_count, mzzstat_uri FROM $mzz_table_name WHERE mzzstat_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW() GROUP BY mzzstat_uri ORDER BY COUNT(id) DESC");
+		//select all records between one-month-before-now and 24-hours-from-now. Group by uri so that there will be one distinct row returned each uri from that time period, and the aggregate function count() will aggregate the number of hits for each uri for us.
+	$mj_mzz_results = $wpdb->get_results("SELECT COUNT(id) AS monthly_hit_count, mzzstat_uri FROM $mzz_table_name WHERE mzzstat_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND DATE_ADD(NOW(), INTERVAL 86400 SECOND) GROUP BY mzzstat_uri ORDER BY COUNT(id) DESC");
+
 
 	echo 'Hit count per page, for the last month:<br/>';
 	echo 'Hits | URI<br/>';
+
+	//loop through each 
 	foreach ( $mj_mzz_results as $mj_mzz_result ) 
 	{
 		echo $mj_mzz_result->monthly_hit_count . ' | ' . $mj_mzz_result->mzzstat_uri . '<br/>';
 	}
 
-	$mzz_monthly_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date > DATE_SUB(NOW(), INTERVAL 1 MONTH)" );
+	$mzz_monthly_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND DATE_ADD(NOW(), INTERVAL 86400 SECOND)" );
 
 	echo $mzz_monthly_tally . ' <-Total hits this month<br/><br/>';
 
