@@ -5,6 +5,11 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 ==Changelog==
 
+= 20151224.2249 =
+* 24 December 2015 by mjjojo(mjassen)
+* Changed what data is seen in the Admin page. Now it is All-time hits, last-30-days hits, and then a big table/matrix of hits per page per day for past 30 days.
+* added more thorough code comments.
+
 = 20151220.2130 =
 * 20 December 2015 by mjjojo(mjassen)
 * Put a patch/workaround in the MySQL query code to allow for apparent time zone discrepancy.
