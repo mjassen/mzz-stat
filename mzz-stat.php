@@ -140,21 +140,21 @@ $mj_mzz_month_results = $wpdb->get_results("SELECT COUNT(id) AS monthly_hit_coun
 //start building the table
 $mj_mzz_base_table_string .= '<table border=1">';
 
-//continue to build the table - the table header (th) row.
-$mj_mzz_base_table_string .= '<th><td>Uri (Page) requested</td><td>Monthly Total</td>';
+//continue to build the table - the table header row.
+$mj_mzz_base_table_string .= '<tr><th>Uri (Page) requested</th><th>Monthly Total</th>';
 
 
 //for loop loops from 0 to 30 representing the past 30 days and outputs the month+day of each day in the table header. uses today's date as the base for the date arithmetic for the day, and then uses a mktime() on that so that it can be exploded and the day portion of the date can be subtracted from(by one each day), and then uses the date() function on that.
 for ( $counter = 0; $counter <= 30; $counter ++ ){
 
 //output today's date plus one day, minus $count days. (just the month and day of today's date actually)
-$mj_mzz_base_table_string .= '<td>' . date("M d", mktime(date("H", strtotime ($mj_mzz_base_date)), date("i", strtotime ($mj_mzz_base_date)), date("s", strtotime ($mj_mzz_base_date)), date("m", strtotime ($mj_mzz_base_date)), (date("d", strtotime ($mj_mzz_base_date)) +1 -$counter), date("Y", strtotime ($mj_mzz_base_date)))) . '</td>';
+$mj_mzz_base_table_string .= '<th>' . date("M d", mktime(date("H", strtotime ($mj_mzz_base_date)), date("i", strtotime ($mj_mzz_base_date)), date("s", strtotime ($mj_mzz_base_date)), date("m", strtotime ($mj_mzz_base_date)), (date("d", strtotime ($mj_mzz_base_date)) +1 -$counter), date("Y", strtotime ($mj_mzz_base_date)))) . '</th>';
 
 } // end for ( $counter = 0; $counter <= 30; $counter ++ )
 
 
-//end building the table header (th) row
-$mj_mzz_base_table_string .= '</th>';
+//end building the table header row
+$mj_mzz_base_table_string .= '</tr>';
 
 
 
