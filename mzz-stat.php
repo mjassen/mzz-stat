@@ -25,6 +25,8 @@
     along with this program; if not, see <http://www.gnu.org/licenses/>
 */
 
+//你好 <- Utf-8 file encoding integrity test -- two Chinese characters for hello/"ni hao" should appear at the beginning of this line.
+
 /* Install database table if it doesn't already exist*/
 register_activation_hook( __FILE__, 'mzz_mzzstat_install' );
 
@@ -61,6 +63,7 @@ $mzz_table_name = $wpdb->prefix . "mzzstat";
 
 $mzz_server_request_uri = $_SERVER['REQUEST_URI'];
 
+//This fires each time someone visits any page in the WordPress website. (because it is added into the wp_footer action which is triggered any time someone visits any page on the website) It inserts the requested uri (page) and the date+time into the mzzstat table in the WordPress database.
 $wpdb->insert( 
 	$mzz_table_name, 
 	array( 
@@ -75,7 +78,7 @@ $wpdb->insert(
 
 
 
-// Add an entry for our Mzz-stat admin page to the tools menu
+// Add an entry for our Mzz-stat admin page to the tools menu. So It adds an entry in the WordPress Dashboard under the Tools menu > Mzz-stat
 add_action('admin_menu', 'mzz_mzzstat_dashboard');
 function mzz_mzzstat_dashboard() {
     add_management_page( 'Mzz-stat Admin Page', 'Mzz-stat', 'manage_options',
@@ -83,43 +86,105 @@ function mzz_mzzstat_dashboard() {
 }
 
 
-// Draw the Mzz-stat admin page. The mzz_mzzstat_admin_page function contains the Mzz-stat Admin page, which is used to display the stats. One of the main stats is the total hits to any page on the website.
+// Draw the Mzz-stat admin page. This page shows when one browses to it via the WP Admin Dashboard > Tools > Mzz-stat. The mzz_mzzstat_admin_page function contains the Mzz-stat Admin page, which is used to display the stats. One of the main stats is the total hits to any page on the website.
 function mzz_mzzstat_admin_page() {
     ?>
     <div class="wrap">
         <h2>Mzz-stat</h2>
     	<?php
-	// Find tally of total page hits for all WordPress site pages from the database
+	
+
+	// need to tell the plugin where to look for the database by calling global $wpdb here
 	global $wpdb;
 
+	//this $mzz_table_name variable will hold the reference to the plugin's table's name
 	$mzz_table_name = $wpdb->prefix . "mzzstat";
 
-	//select all records older than 24-hours-from-now
-	$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date < DATE_ADD(NOW(), INTERVAL 86400 SECOND)" );
 
-	echo 'Total website hits (All time): ' . $mzz_total_tally . '<br/><br/>';
-
+	//$mj_mzz_base_date is essentially now(). But we only want to call it once at the beginning of each script load so that we can base all calculations off it and so the calculations will all be based off the same time of now() even if they are run in multiple queries.
+	$mj_mzz_base_date = date("Y-m-d H:i:s");
 
 
-
-	echo '-------------------------------------------<br/><br/>';
-
-		//select all records between one-month-before-now and 24-hours-from-now. Group by uri so that there will be one distinct row returned each uri from that time period, and the aggregate function count() will aggregate the number of hits for each uri for us.
-	$mj_mzz_results = $wpdb->get_results("SELECT COUNT(id) AS monthly_hit_count, mzzstat_uri FROM $mzz_table_name WHERE mzzstat_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND DATE_ADD(NOW(), INTERVAL 86400 SECOND) GROUP BY mzzstat_uri ORDER BY COUNT(id) DESC");
+	//select all records older than 24-hours-from-now (so that means all records ever recorded)
+	//$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date < DATE_ADD('" . $mj_mzz_base_date . "', INTERVAL 86400 SECOND)" );
+	$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date < DATE_ADD('" . $mj_mzz_base_date . "', INTERVAL 1 DAY)" );
 
 
-	echo 'Hit count per page, for the last month:<br/>';
-	echo 'Hits | URI<br/>';
+	$mzz_oldest_hit = '';
+	//select the date/time of the oldest hit in the database
+	$mzz_oldest_hit = $wpdb->get_var( "SELECT mzzstat_date FROM $mzz_table_name ORDER BY mzzstat_date ASC LIMIT 0,1" );
 
-	//loop through each 
-	foreach ( $mj_mzz_results as $mj_mzz_result ) 
-	{
-		echo $mj_mzz_result->monthly_hit_count . ' | ' . $mj_mzz_result->mzzstat_uri . '<br/>';
-	}
+	echo 'All-time (since ' . date("Y-m-d", strtotime($mzz_oldest_hit)) . ') total (Uri (page) Requests) hits:  <br/>' . $mzz_total_tally . '<br/><br/>';
 
-	$mzz_monthly_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND DATE_ADD(NOW(), INTERVAL 86400 SECOND)" );
 
-	echo $mzz_monthly_tally . ' <-Total hits this month<br/><br/>';
+	//query to find total count of all pages (uris requested) hit in the last month days
+	$mzz_monthly_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND DATE_ADD(NOW(), INTERVAL 1 DAY)" );
+
+	echo 'Total (Uri (page) Requests) hits this past thirty days: <br/>' . $mzz_monthly_tally . '<br/><br/>';
+
+	//start section where we calculate and output the table of (Uri (page) Requests) hits per Uri, per day, for the last 30 days
+	echo 'Table of (Uri (page) Requests) hits per Uri, per day, for the last thirty days:<br/><br/>';
+
+
+//start code to do a 30-day array of all pages (uris requested) hit in those thirty days, and along with the count of how many hits per day during those thirty days. in a matrix with the date listed along the top and the page/uri listed along the top.
+
+
+//this string represents the html for the table. It is build as we go, then at the end it is echoed to the Admin dashboard page. (In the WP Admin dashboard under Tools menu-> Mzz-stat
+$mj_mzz_base_table_string = "";
+
+
+//select all records between one-month-before-now and 24-hours-from-now (so essentially now allowing for up to 24 hours time zone difference). Group by uri so that there will be one distinct row returned each uri from that time period, and the aggregate function count() will aggregate the number of hits for each uri for us.
+$mj_mzz_month_results = $wpdb->get_results("SELECT COUNT(id) AS monthly_hit_count, mzzstat_uri FROM $mzz_table_name WHERE mzzstat_date BETWEEN DATE_SUB('" . $mj_mzz_base_date . "', INTERVAL 1 MONTH) AND DATE_ADD('" . $mj_mzz_base_date . "', INTERVAL 1 DAY) GROUP BY mzzstat_uri ORDER BY COUNT(id) DESC");
+
+
+//start building the table
+$mj_mzz_base_table_string .= '<table border=1">';
+
+//continue to build the table - the table header (th) row.
+$mj_mzz_base_table_string .= '<th><td>Uri (Page) requested</td><td>Monthly Total</td>';
+
+
+//for loop loops from 0 to 30 representing the past 30 days and outputs the month+day of each day in the table header. uses today's date as the base for the date arithmetic for the day, and then uses a mktime() on that so that it can be exploded and the day portion of the date can be subtracted from(by one each day), and then uses the date() function on that.
+for ( $counter = 0; $counter <= 30; $counter ++ ){
+
+//output today's date plus one day, minus $count days. (just the month and day of today's date actually)
+$mj_mzz_base_table_string .= '<td>' . date("M d", mktime(date("H", strtotime ($mj_mzz_base_date)), date("i", strtotime ($mj_mzz_base_date)), date("s", strtotime ($mj_mzz_base_date)), date("m", strtotime ($mj_mzz_base_date)), (date("d", strtotime ($mj_mzz_base_date)) +1 -$counter), date("Y", strtotime ($mj_mzz_base_date)))) . '</td>';
+
+} // end for ( $counter = 0; $counter <= 30; $counter ++ )
+
+
+//end building the table header (th) row
+$mj_mzz_base_table_string .= '</th>';
+
+
+
+foreach ( $mj_mzz_month_results as $mj_mzz_month_result ) //loop through each distinct uri. as we go we will have another loop which loops through the 30 days for each uri.
+{
+	
+	$mj_mzz_base_table_string .=  '<tr>' . '<td>' . $mj_mzz_month_result->mzzstat_uri . '</td><td>' . $mj_mzz_month_result->monthly_hit_count . '</td>' ;
+
+		
+		for ( $counter = 0; $counter <= 30; $counter ++ ){ // loops through the 30 days for each uri. For each day, output the count of how many hits on that page for that day
+
+			$mj_mzz_uri_day_results = $wpdb->get_var("SELECT COUNT(id) AS daily_page_hit_count FROM $mzz_table_name WHERE ( mzzstat_date BETWEEN DATE_SUB('" . $mj_mzz_base_date . "', INTERVAL " . ($counter+1) . " DAY) AND DATE_SUB('" . $mj_mzz_base_date . "', INTERVAL " . $counter . " DAY) ) AND ( mzzstat_uri = '" . $mj_mzz_month_result->mzzstat_uri . "' )");
+
+		//output the count of how many hits on that page for that day
+		$mj_mzz_base_table_string .=  '<td>' . $mj_mzz_uri_day_results . '</td>';
+		} // end for ( $counter = 0; $counter <= 30; $counter ++ ){ // loops through the 30 days for each uri.
+
+	$mj_mzz_base_table_string .= '</tr>';
+
+
+
+} //end foreach ( $mj_mzz_month_results as $mj_mzz_month_result ) //loop through each distinct uri.
+
+
+//finish building the table
+$mj_mzz_base_table_string .= '</table>';
+
+//echo the string that represents the html for the table. We built it as we went, now here at the end it is echoed to the Admin dashboard page. 
+echo $mj_mzz_base_table_string;
+
 
 
 	?>
