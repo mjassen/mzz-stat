@@ -1,7 +1,9 @@
 === mzz-stat ===
 Contributors: mjjojo
+Tags: stats, statistics, hit counter, page views, visits per page per day
 Requires at least: 4.4
 Tested up to: 4.4
+Stable tag: trunk
 License: GPLv2
 
 Shows the WP site administrator how many visits per page per day to their WP site.
@@ -76,6 +78,23 @@ Thanks to CrazyStat ( http://www.christosoft.de/CrazyStat ) for inspiring me and
 * 10 August 2015 by mjassen
 * initial release
 
+== Upgrade Notice ==
+
+Check back here for Upgrade notes.
+
+== Installation ==
+
+To install the plugin manually, unzip the plugin and upload the entire "mzz-stat" folder into the "wp-content/plugins" directory of your WordPress website. 
+Then log into the WordPress dashboard, and under Plugins, click Activate. 
+The plugin follows the same install procedure as described at http://codex.wordpress.org/Managing_Plugins#Installing_Plugins 
+
+To completely and permanently uninstall the plugin including its files and data, browse to the WordPress dashboard and under Plugins, under the Mzz-stat plugin, click Deactivate, then click Delete.
+
+== Screenshots ==
+
+1. Plugin activation screen
+2. Admin screen
+
 == Frequently Asked Questions ==
 
 = What is the purpose of the plugin, what does the plugin do, and how does the plugin work? =
@@ -89,16 +108,6 @@ Not currently.
 = Is the plugin internationalized or localized? =
 
 Not currently.
-
-= How to install the plugin? = 
-
-To install the plugin manually, unzip the plugin and upload the entire "mzz-stat" folder into the "wp-content/plugins" directory of your WordPress website. 
-Then log into the WordPress dashboard, and under Plugins, click Activate. 
-The plugin follows the same install procedure as described at http://codex.wordpress.org/Managing_Plugins#Installing_Plugins 
-
-= How to uninstall the plugin? =
-
-To completely and permanently uninstall the plugin including its files and data, browse to the WordPress dashboard and under Plugins, under the Mzz-stat plugin, click Deactivate, then click Delete.
 
 = How to get support for the plugin? =
 
