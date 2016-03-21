@@ -14,7 +14,7 @@ Shows the WP site administrator how many visits per page per day to their WP sit
 The purpose of the plugin is to show the WP site administrator how many visits per page per day to their WP site.
 
 <strong>What the Plugin Does</strong>
-The plugin records a timestamp and uri name for each page request on the WordPress site. It starts recording these for any time for which the plugin is activated. Then in the WordPress admin area, in the Dashboard menu under Tools > Mzz-stat, a page shows a report of these statistics, including a count of how many URI (page/post) views per day. Thus by looking at the statistics page the WordPress administrator can know whether anyone is visiting their site, and, how many uri requests were made on which page on which day.
+The plugin records an uri name for each page request on the WordPress site. Then in the WordPress admin area, in the Dashboard menu under Tools > Mzz-stat, a page shows a report of these statistics, including a count of how many URI (page/post) views per day. Thus by looking at the statistics page the WordPress administrator can know whether anyone is visiting their site, and, how many uri requests were made on which page on which day.
 
 <strong>How the Mzz-stat plugin works</strong>
 Upon installing and activating the Mzz-stat plugin, it installs its own table in the WordPress database alongside the other database tables. The plugin logic hooks into the wp_footer action hook, and each time someone requests any page on the site, the plugin inserts a record of that visit into the database table. Then, at any time the WordPress Administrator can go to the Admin page and see the report in the Dashboard menu under Tools > Mzz-stat menu. There will be a list of each page visited (for a time period) along with a count of how many visits for that page per day. If one deactivates the plugin, it will no longer insert records of uri requests unless/until the plugin is again activated. If one deletes the plugin then that will completely uninstall the plugin and remove the files, database table, and data.
@@ -24,6 +24,14 @@ Upon installing and activating the Mzz-stat plugin, it installs its own table in
 Thanks to CrazyStat ( http://www.christosoft.de/CrazyStat ) for inspiring me and thanks to this discussion: ( https://wordpress.org/support/topic/stats-plugin-8 ) for helping steer the direction of the plugin.
 
 ==Changelog==
+
+= 20160320.2203 =
+* 20 March 2016 by mjjojo(mjassen)
+* Extensive changes including the table schema and reporting format.
+* Now stores in the database table one row per-page-per-month and has a field representing 31 days of that month.
+* Now updates/increments the hit count for the given day in the database, instead of inserting a new record for each hit.
+* Now tracks hits by the day -- no longer records any record of the hh:mm:ss
+* Includes logic to perform the upgrade from the old table to the new table, including migrating the data and deleting the old table.
 
 = 20151230.2238 =
 * 30 December 2015 by mjjojo(mjassen)
@@ -111,8 +119,13 @@ Not currently.
 
 = How to get support for the plugin? =
 
-Right now the primary support should be through the plugin's github issues page here:https://github.com/mjassen/mzz-stat/issues , or, if accepted to the .org plugins repository, then the primary support will instead be through the .org plugins support forum page.
+The primary support is through the plugin's WordPress.org support forums page: https://wordpress.org/support/plugin/mzz-stat
 
 = How to get/download the plugin? =
 
-The current version of the plugin can be downloaded from its Github page here: https://github.com/mjassen/mzz-stat/archive/master.zip
+The current version of the plugin can be downloaded from its page here on WordPress.org: https://wordpress.org/plugins/mzz-stat/
+
+= Where else to get/download the plugin? =
+
+The current version can also be downloaded from its Github page here: https://github.com/mjassen/mzz-stat/archive/master.zip
+
