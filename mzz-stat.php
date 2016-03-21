@@ -1,15 +1,15 @@
 <?php
 /**
 * Plugin Name: Mzz-stat
-* Plugin URI: https://github.com/mjassen/mzz-stat
+* Plugin URI: https://wordpress.org/plugins/mzz-stat/
 * Description: A plugin that records statistics for a WordPress site.
-* Version: 20151230.2238
+* Version: 20160320.2203
 * Author: Morgan Jassen
 * Author URI: http://wieldlinux.com/
 * License: GPLv2
 */
 
-/*  Copyright 2015  Morgan Jassen  (email : morgan.jassen@gmail.com)
+/*  Copyright 2016  Morgan Jassen  (email : morgan.jassen@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
     along with this program; if not, see <http://www.gnu.org/licenses/>
 */
 
-//你好 <- Utf-8 file encoding integrity test -- two Chinese characters for hello/"ni hao" should appear at the beginning of this line.
+//你好 <- Utf-8 test -- two Utf-8 Chinese characters should appear at the beginning of this line.
 
 /* Install database table if it doesn't already exist*/
 register_activation_hook( __FILE__, 'mzz_mzzstat_install' );
@@ -34,171 +34,379 @@ function mzz_mzzstat_install() {
 global $wpdb;
 
 
-	$table_name = $wpdb->prefix . 'mzzstat';
+	$table_name = $wpdb->prefix . 'mzzstat_v2';
 
 	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 		id bigint(20) NOT NULL AUTO_INCREMENT,
-		mzzstat_uri text NOT NULL,
-		mzzstat_date datetime NOT NULL,
-		UNIQUE KEY id (id)
+		mzzstat_YYYY int(4) NOT NULL,
+		mzzstat_month int(2) NOT NULL,
+		uri varchar(255) NOT NULL,
+		monthly_hits int(8) NOT NULL,
+		hits_day_01 int(8) NOT NULL,
+		hits_day_02 int(8) NOT NULL,
+		hits_day_03 int(8) NOT NULL,
+		hits_day_04 int(8) NOT NULL,
+		hits_day_05 int(8) NOT NULL,
+		hits_day_06 int(8) NOT NULL,
+		hits_day_07 int(8) NOT NULL,
+		hits_day_08 int(8) NOT NULL,
+		hits_day_09 int(8) NOT NULL,
+		hits_day_10 int(8) NOT NULL,
+		hits_day_11 int(8) NOT NULL,
+		hits_day_12 int(8) NOT NULL,
+		hits_day_13 int(8) NOT NULL,
+		hits_day_14 int(8) NOT NULL,
+		hits_day_15 int(8) NOT NULL,
+		hits_day_16 int(8) NOT NULL,
+		hits_day_17 int(8) NOT NULL,
+		hits_day_18 int(8) NOT NULL,
+		hits_day_19 int(8) NOT NULL,
+		hits_day_20 int(8) NOT NULL,
+		hits_day_21 int(8) NOT NULL,
+		hits_day_22 int(8) NOT NULL,
+		hits_day_23 int(8) NOT NULL,
+		hits_day_24 int(8) NOT NULL,
+		hits_day_25 int(8) NOT NULL,
+		hits_day_26 int(8) NOT NULL,
+		hits_day_27 int(8) NOT NULL,
+		hits_day_28 int(8) NOT NULL,
+		hits_day_29 int(8) NOT NULL,
+		hits_day_30 int(8) NOT NULL,
+		hits_day_31 int(8) NOT NULL,
+		UNIQUE KEY id (id),
+		KEY mzzstat_YYYY (mzzstat_YYYY),
+		KEY mzzstat_month (mzzstat_month),
+		KEY uri (uri)
 	);";
 
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	dbDelta( $sql );
-}
-
-
-
-
-add_action( 'wp_footer', 'mzz_include_mzzstat', 99 );
-
-
-//the mzz_include_mzzstat() function includes this code in the WordPress footer. thus any time any page on the WordPress site is browsed, the function is executed. the mzz_include_mzzstat() function inserts into the mzzstat (or wp_mzzstat or xx_mzzstat) the uri visited, and the date and time.
- 
-function mzz_include_mzzstat() {
-
-global $wpdb;
-
-//how many days is the reporting set to. (the hits per day per page reporting)
-//$mj_mzz_reporting_days = 5;
-
-$mzz_table_name = $wpdb->prefix . "mzzstat";
-
-$mzz_server_request_uri = $_SERVER['REQUEST_URI'];
-
-//This fires each time someone visits any page in the WordPress website. (because it is added into the wp_footer action which is triggered any time someone visits any page on the website) It inserts the requested uri (page) and the date+time into the mzzstat table in the WordPress database.
-$wpdb->insert( 
-	$mzz_table_name, 
-	array( 
-		'mzzstat_uri' => $mzz_server_request_uri, 
-		'mzzstat_date' => date("Y-m-d H:i:s")
-	) 
-);
+	
 	
 }
 
 
+//hook the function into the WordPress footer so it triggers every page load. 
+add_action( 'wp_footer', 'mzz_include_mzzstat', 99 );
+ 
+function mzz_include_mzzstat() {
 
 
+	// check the db tables and if necessary update them and migrate the data
+	mzz_mzzstat_upgrade_migrate_db_v1_v2();
 
-// Add an entry for our Mzz-stat admin page to the tools menu. So It adds an entry in the WordPress Dashboard under the Tools menu > Mzz-stat
+	
+	global $wpdb;
+
+
+		$mzz_table_name = $wpdb->prefix . "mzzstat_v2";
+
+		// Now, in format of YYYY-MM-DD HH:MM:SS
+		$mj_mzz_base_date_time = current_time( 'mysql' );
+
+		//Convert to a format of YYYY.
+		//$mj_mzz_YYYYMMDD = date('Ymd', strtotime($mj_mzz_base_date_time)); 
+		
+		//Convert to a format of YYYY.
+		$mj_mzz_YYYY = date('Y', strtotime($mj_mzz_base_date_time)); 
+		
+		//Convert to a format of [M]M.
+		$mj_mzz_month = date('m', strtotime($mj_mzz_base_date_time)); 
+
+		//Convert to a format of DD.
+		$mj_mzz_DD = date('d', strtotime($mj_mzz_base_date_time)); 
+
+		//Truncate uri to less than 255 chars and add ellipsis before saving it to the database.
+		$mzz_server_request_uri = (strlen($_SERVER['REQUEST_URI']) > 255) ? substr($_SERVER['REQUEST_URI'],0,254).'…' : $_SERVER['REQUEST_URI'];
+
+
+		//Is there already a record in the [xx_]mzzstat_v2 db table where the date is this YYYY & month and the uri is the currently requested uri?
+		$mj_mzz_thismonth_uri_id = $wpdb->get_var('SELECT id FROM ' . $mzz_table_name . ' WHERE mzzstat_YYYY = ' . $mj_mzz_YYYY . ' AND mzzstat_month = ' . $mj_mzz_month . ' AND uri = \'' . $mzz_server_request_uri . '\'');
+
+		if( $wpdb->num_rows == 0 ){ //There isn't already a record. Insert one.
+			$wpdb->insert(
+				$mzz_table_name, 
+				array( 
+					'mzzstat_YYYY' => $mj_mzz_YYYY,
+					'mzzstat_month' => $mj_mzz_month,					
+					'uri' => $mzz_server_request_uri,
+					'monthly_hits' => 1,
+					'hits_day_' . $mj_mzz_DD => 1
+				)
+			);
+		}else{ //There is already a record. Update to increment its hit count.
+
+			$wpdb->query('UPDATE ' . $mzz_table_name . ' SET monthly_hits = (monthly_hits + 1), hits_day_' . $mj_mzz_DD . ' = (hits_day_' . $mj_mzz_DD . ' + 1) WHERE id = ' . $mj_mzz_thismonth_uri_id);
+		} //end else
+	
+} //end function mzz_include_mzzstat
+
+
+// In the WordPress Dashboard under the Tools menu > Mzz-stat, add an Admin page. 
 add_action('admin_menu', 'mzz_mzzstat_dashboard');
+
 function mzz_mzzstat_dashboard() {
     add_management_page( 'Mzz-stat Admin Page', 'Mzz-stat', 'manage_options',
         'mzz_mzzstat_admin', 'mzz_mzzstat_admin_page' );
 }
 
 
-// Draw the Mzz-stat admin page. This page shows when one browses to it via the WP Admin Dashboard > Tools > Mzz-stat. The mzz_mzzstat_admin_page function contains the Mzz-stat Admin page, which is used to display the stats. One of the main stats is the total hits to any page on the website.
+// Draw the Admin page. This page displays the stats.
 function mzz_mzzstat_admin_page() {
     ?>
     <div class="wrap">
         <h2>Mzz-stat</h2>
     	<?php
 	
+	// check the db tables and if necessary update them and migrate the data
+	mzz_mzzstat_upgrade_migrate_db_v1_v2(1);
 
-	// need to tell the plugin where to look for the database by calling global $wpdb here
+	// Tell the function about the database object
 	global $wpdb;
+	
+	// Tell the function the name of the mzzstat_v2 table
+	$mzz_table_name = $wpdb->prefix . "mzzstat_v2";
+	
+	$mj_mzz_base_date = current_time( 'mysql' );
 
-	//this $mzz_table_name variable will hold the reference to the plugin's table's name
-	$mzz_table_name = $wpdb->prefix . "mzzstat";
+	//this string represents the html for the table showing the stats. It is build as we go, then at the end it is echoed to the Admin dashboard page.
+	$mj_mzz_base_table_string = "";
 
+	//select daily hit count for each day for each page. There will be one distinct row returned for each uri for each month.
+	$mj_mzz_month_results = $wpdb->get_results("SELECT mzzstat_YYYY, mzzstat_month, uri, monthly_hits, hits_day_01, hits_day_02, hits_day_03, hits_day_04, hits_day_05, hits_day_06, hits_day_07, hits_day_08, hits_day_09, hits_day_10, hits_day_11, hits_day_12, hits_day_13, hits_day_14, hits_day_15, hits_day_16, hits_day_17, hits_day_18, hits_day_19, hits_day_20, hits_day_21, hits_day_22, hits_day_23, hits_day_24, hits_day_25, hits_day_26, hits_day_27, hits_day_28, hits_day_29, hits_day_30, hits_day_31 FROM $mzz_table_name ORDER BY mzzstat_YYYY DESC, mzzstat_month DESC, monthly_hits DESC");
 
-	//$mj_mzz_base_date is essentially now(). But we only want to call it once at the beginning of each script load so that we can base all calculations off it and so the calculations will all be based off the same time of now() even if they are run in multiple queries.
-	$mj_mzz_base_date = date("Y-m-d H:i:s");
+	//select sum of monthly_hits for all months which is tally of all hits ever.
+	$mzz_total_tally = $wpdb->get_var( "SELECT SUM(monthly_hits) FROM $mzz_table_name" );
+	
+	echo 'All-time total (Uri (page) Requests) hits: ' . $mzz_total_tally . '<br/><br/>';
 
+	//start building the table
+	$mj_mzz_base_table_string .= '<table border=1">';
 
-	//select all records older than 24-hours-from-now (so that means all records ever recorded)
-	//$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date < DATE_ADD('" . $mj_mzz_base_date . "', INTERVAL 86400 SECOND)" );
-	$mzz_total_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date < DATE_ADD('" . $mj_mzz_base_date . "', INTERVAL 1 DAY)" );
+	//continue to build the table - the table header row.
+	$mj_mzz_base_table_string .= '<tr><th>YYYY-[M]M</th><th>uri</th><th>monthly<br/>hits</th><th>day<br/>01</th><th>day<br/>02</th><th>day<br/>03</th><th>day<br/>04</th><th>day<br/>05</th><th>day<br/>06</th><th>day<br/>07</th><th>day<br/>08</th><th>day<br/>09</th><th>day<br/>10</th><th>day<br/>11</th><th>day<br/>12</th><th>day<br/>13</th><th>day<br/>14</th><th>day<br/>15</th><th>day<br/>16</th><th>day<br/>17</th><th>day<br/>18</th><th>day<br/>19</th><th>day<br/>20</th><th>day<br/>21</th><th>day<br/>22</th><th>day<br/>23</th><th>day<br/>24</th><th>day<br/>25</th><th>day<br/>26</th><th>day<br/>27</th><th>day<br/>28</th><th>day<br/>29</th><th>day<br/>30</th><th>day<br/>31</th></tr>';
+	
 
-
-	$mzz_oldest_hit = '';
-	//select the date/time of the oldest hit in the database
-	$mzz_oldest_hit = $wpdb->get_var( "SELECT mzzstat_date FROM $mzz_table_name ORDER BY mzzstat_date ASC LIMIT 0,1" );
-
-	echo 'All-time (since ' . date("Y-m-d", strtotime($mzz_oldest_hit)) . ') total (Uri (page) Requests) hits:  <br/>' . $mzz_total_tally . '<br/><br/>';
-
-	$mzz_monthly_tally = 0;
-
-	//query to find total count of all pages (uris requested) hit in the last n days
-	$mzz_monthly_tally = $wpdb->get_var( "SELECT COUNT(id) FROM $mzz_table_name WHERE mzzstat_date BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND DATE_ADD(NOW(), INTERVAL 1 DAY)" );
-
-	if ($mzz_monthly_tally == 0) {
-	echo '<strong>Note: If no visitors have yet visited the site, then this statistics area would be 0 and/or blank! To put at least one visit, you could browse to any page on the website, such as the home page, at least once, then come back and refresh this page.</strong><br/><br/>';
-	}
-
-	echo 'Total (Uri (page) Requests) hits this past 5 days: <br/>' . $mzz_monthly_tally . '<br/><br/>';
-
-	//start section where we calculate and output the table of (Uri (page) Requests) hits per Uri, per day, for the last n days (n was 30 but changed it to 5)
-	echo 'Table of (Uri (page) Requests) hits per Uri, per day, for the last 5 days:<br/><br/>';
-
-
-//start code to do an n-day array of all pages (uris requested) hit in those thirty days, and along with the count of how many hits per day during those thirty days. in a matrix with the date listed along the top and the page/uri listed along the top.
-
-
-//this string represents the html for the table. It is build as we go, then at the end it is echoed to the Admin dashboard page. (In the WP Admin dashboard under Tools menu-> Mzz-stat
-$mj_mzz_base_table_string = "";
-
-
-//select all records between one-month-before-now and 24-hours-from-now (so essentially now allowing for up to 24 hours time zone difference). Group by uri so that there will be one distinct row returned each uri from that time period, and the aggregate function count() will aggregate the number of hits for each uri for us.
-$mj_mzz_month_results = $wpdb->get_results("SELECT COUNT(id) AS monthly_hit_count, mzzstat_uri FROM $mzz_table_name WHERE mzzstat_date BETWEEN DATE_SUB('" . $mj_mzz_base_date . "', INTERVAL 5 DAY) AND DATE_ADD('" . $mj_mzz_base_date . "', INTERVAL 1 DAY) GROUP BY mzzstat_uri ORDER BY COUNT(id) DESC");
-
-
-//start building the table
-$mj_mzz_base_table_string .= '<table border=1">';
-
-//continue to build the table - the table header row.
-$mj_mzz_base_table_string .= '<tr><th>Uri (Page) requested</th><th>n-day Total</th>';
-
-
-//for loop loops from 0 to n representing the past n days and outputs the month+day of each day in the table header. uses today's date as the base for the date arithmetic for the day, and then uses a mktime() on that so that it can be exploded and the day portion of the date can be subtracted from(by one each day), and then uses the date() function on that.
-for ( $counter = 0; $counter <= 5; $counter ++ ){
-
-//output today's date plus one day, minus $count days. (just the month and day of today's date actually)
-$mj_mzz_base_table_string .= '<th>' . date("M d", mktime(date("H", strtotime ($mj_mzz_base_date)), date("i", strtotime ($mj_mzz_base_date)), date("s", strtotime ($mj_mzz_base_date)), date("m", strtotime ($mj_mzz_base_date)), (date("d", strtotime ($mj_mzz_base_date)) +1 -$counter), date("Y", strtotime ($mj_mzz_base_date)))) . '</th>';
-
-} // end for ( $counter = 0; $counter <= 5; $counter ++ )
-
-
-//end building the table header row
-$mj_mzz_base_table_string .= '</tr>';
-
-
-
-foreach ( $mj_mzz_month_results as $mj_mzz_month_result ) //loop through each distinct uri. as we go we will have another loop which loops through the n days for each uri.
+	
+	
+	
+	foreach ( $mj_mzz_month_results as $mj_mzz_month_result ) //outer loop - loops through all the rows.
 {
 	
-	$mj_mzz_base_table_string .=  '<tr>' . '<td>' . $mj_mzz_month_result->mzzstat_uri . '</td><td>' . $mj_mzz_month_result->monthly_hit_count . '</td>' ;
+	$mj_mzz_base_table_string .=  '<tr>' . '<td>' . $mj_mzz_month_result->mzzstat_YYYY . '-' . $mj_mzz_month_result->mzzstat_month . '</td><td>' . $mj_mzz_month_result->uri . '</td><td>' . $mj_mzz_month_result->monthly_hits . '</td>' ;
 
+	
+		for ( $counter = 1; $counter <= 31; $counter ++ ){ //inner loop -- loops through the current row's field values
+
+		$temp = 'hits_day_' . str_pad($counter, 2, "0", STR_PAD_LEFT);
 		
-		for ( $counter = 0; $counter <= 5; $counter ++ ){ // loops through the n days for each uri. For each day, output the count of how many hits on that page for that day
-
-			$mj_mzz_uri_day_results = $wpdb->get_var("SELECT COUNT(id) AS daily_page_hit_count FROM $mzz_table_name WHERE ( mzzstat_date BETWEEN DATE_SUB('" . $mj_mzz_base_date . "', INTERVAL " . ($counter+1) . " DAY) AND DATE_SUB('" . $mj_mzz_base_date . "', INTERVAL " . $counter . " DAY) ) AND ( mzzstat_uri = '" . $mj_mzz_month_result->mzzstat_uri . "' )");
-
 		//output the count of how many hits on that page for that day
-		$mj_mzz_base_table_string .=  '<td>' . $mj_mzz_uri_day_results . '</td>';
-		} // end for ( $counter = 0; $counter <= 5; $counter ++ ){ // loops through the n days for each uri.
+		$mj_mzz_base_table_string .=  '<td>' . $mj_mzz_month_result->$temp . '</td>';
+		} // end for ( $counter = 0; $counter <= 30; $counter ++ ){
 
 	$mj_mzz_base_table_string .= '</tr>';
 
 
 
-} //end foreach ( $mj_mzz_month_results as $mj_mzz_month_result ) //loop through each distinct uri.
+} //end foreach ( $mj_mzz_month_results as $mj_mzz_month_result )
 
 
-//finish building the table
-$mj_mzz_base_table_string .= '</table>';
 
-//echo the string that represents the html for the table. We built it as we went, now here at the end it is echoed to the Admin dashboard page. 
-echo $mj_mzz_base_table_string;
 
+
+	
+
+	//finish building the table
+	$mj_mzz_base_table_string .= '</table>';
+
+	//echo the string that represents the html for the table. We built it as we went, now here at the end it is echoed to the Admin dashboard page. 
+	echo $mj_mzz_base_table_string;
 
 
 	?>
     </div>
     <?php
 
+} // end function mzz_mzzstat_admin_page
+
+
+function mzz_mzzstat_upgrade_migrate_db_v1_v2($called_by_admin) {
+global $wpdb;
+
+
+
+
+
+
+
+	// Tell the function the name of the mzzstat_v2 table
+	$mzz_table_name = $wpdb->prefix . "mzzstat_v2";
+	
+	// if no new v2 table is not found then create it. Also, if called from the admin then output a message. 
+	if( $wpdb->get_var("SHOW TABLES LIKE '$mzz_table_name'") != $mzz_table_name ) {
+	
+	if($called_by_admin == 1){
+	echo "<b>New mzzstat_v2 table does not exist... Creating it now... Done-- created the mzzstat_v2 table.</b><br/><br/>";
+	}
+	
+	$sql = "CREATE TABLE IF NOT EXISTS $mzz_table_name (
+		id bigint(20) NOT NULL AUTO_INCREMENT,
+		mzzstat_YYYY int(4) NOT NULL,
+		mzzstat_month int(2) NOT NULL,
+		uri varchar(255) NOT NULL,
+		monthly_hits int(8) NOT NULL,
+		hits_day_01 int(8) NOT NULL,
+		hits_day_02 int(8) NOT NULL,
+		hits_day_03 int(8) NOT NULL,
+		hits_day_04 int(8) NOT NULL,
+		hits_day_05 int(8) NOT NULL,
+		hits_day_06 int(8) NOT NULL,
+		hits_day_07 int(8) NOT NULL,
+		hits_day_08 int(8) NOT NULL,
+		hits_day_09 int(8) NOT NULL,
+		hits_day_10 int(8) NOT NULL,
+		hits_day_11 int(8) NOT NULL,
+		hits_day_12 int(8) NOT NULL,
+		hits_day_13 int(8) NOT NULL,
+		hits_day_14 int(8) NOT NULL,
+		hits_day_15 int(8) NOT NULL,
+		hits_day_16 int(8) NOT NULL,
+		hits_day_17 int(8) NOT NULL,
+		hits_day_18 int(8) NOT NULL,
+		hits_day_19 int(8) NOT NULL,
+		hits_day_20 int(8) NOT NULL,
+		hits_day_21 int(8) NOT NULL,
+		hits_day_22 int(8) NOT NULL,
+		hits_day_23 int(8) NOT NULL,
+		hits_day_24 int(8) NOT NULL,
+		hits_day_25 int(8) NOT NULL,
+		hits_day_26 int(8) NOT NULL,
+		hits_day_27 int(8) NOT NULL,
+		hits_day_28 int(8) NOT NULL,
+		hits_day_29 int(8) NOT NULL,
+		hits_day_30 int(8) NOT NULL,
+		hits_day_31 int(8) NOT NULL,
+		UNIQUE KEY id (id),
+		KEY mzzstat_YYYY (mzzstat_YYYY),
+		KEY mzzstat_month (mzzstat_month),
+		KEY uri (uri)
+	);";
+
+	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+	dbDelta( $sql );
+	
+	}
+
+
+
+
+
+	
+	// If an old unused v1 table is found then start/continue to migrate it. Also, if called from admin then output a message.
+	$old_table_name = $wpdb->prefix . "mzzstat";
+	if( $wpdb->get_var("SHOW TABLES LIKE '$old_table_name'") == $old_table_name ) {
+	
+	if($called_by_admin == 1){
+	echo "<b>Old mzzstat table exists. Migrating it now--may take several page refreshes, or more, proportionate to how many records were in the old database.</b><br/><br/>";
+	}
+	
+
+	$mzz_get_row = $wpdb->get_row( "SELECT * FROM $old_table_name ORDER BY id DESC LIMIT 0,1" );
+	
+	  if($mzz_get_row == NULL){//old table is empty-- drop the old table.
+	  
+	  if($called_by_admin == 1){
+
+	  $wpdb->query('DROP TABLE ' . $old_table_name);
+
+	    echo "<b>Finished migration! Removed old table.</b><br/><br/>";
+	  }	  
+
+	  
+	  }else{//migrate some rows to the new v2 db table
+
+	  
+	  
+	  
+	  
+	
+	  
+	  
+	  
+//select all records between one-month-before-now and 24-hours-from-now (so essentially now allowing for up to 24 hours time zone difference). Group by uri so that there will be one distinct row returned each uri from that time period, and the aggregate function count() will aggregate the number of hits for each uri for us.
+$mj_mzz_month_results = $wpdb->get_results('SELECT * FROM ' . $old_table_name . ' ORDER BY id DESC LIMIT 100');	  
+	  
+	  
+
+foreach ( $mj_mzz_month_results as $mj_mzz_month_result )
+{
+
+
+		$mj_mzz_base_date_time = $mj_mzz_month_result->mzzstat_date;
+		
+		
+		
+		//Convert to a format of YYYY.
+		$mj_mzz_YYYY = date('Y', strtotime($mj_mzz_base_date_time)); 
+		
+		//Convert to a format of [M]M.
+		$mj_mzz_month = date('m', strtotime($mj_mzz_base_date_time)); 
+
+		//Convert to a format of DD.
+		$mj_mzz_DD = date('d', strtotime($mj_mzz_base_date_time)); 
+
+		//Truncate uri to less than 255 chars and add ellipsis before saving it to the database.
+		$mzz_server_request_uri = (strlen($mj_mzz_month_result->mzzstat_uri) > 255) ? substr($mj_mzz_month_result->mzzstat_uri,0,254).'…' : $mj_mzz_month_result->mzzstat_uri;
+
+
+		//Is there already a record in the [xx_]mzzstat_v2 db table where the date is this YYYY & month and the uri is the currently requested uri?
+		$mj_mzz_thismonth_uri_id = $wpdb->get_var('SELECT id FROM ' . $mzz_table_name . ' WHERE mzzstat_YYYY = ' . $mj_mzz_YYYY . ' AND mzzstat_month = ' . $mj_mzz_month . ' AND uri = \'' . $mzz_server_request_uri . '\'');
+
+		if( $wpdb->num_rows == 0 ){ //There isn't already a record. Insert one.
+			$wpdb->insert(
+				$mzz_table_name, 
+				array( 
+					'mzzstat_YYYY' => $mj_mzz_YYYY,
+					'mzzstat_month' => $mj_mzz_month,					
+					'uri' => $mzz_server_request_uri,
+					'monthly_hits' => 1,
+					'hits_day_' . $mj_mzz_DD => 1
+				)
+			);
+		}else{ //There is already a record. Update to increment its hit count.
+
+			$wpdb->query('UPDATE ' . $mzz_table_name . ' SET monthly_hits = (monthly_hits + 1), hits_day_' . $mj_mzz_DD . ' = (hits_day_' . $mj_mzz_DD . ' + 1) WHERE id = ' . $mj_mzz_thismonth_uri_id);
+		} //end else
+
+
+
+} //end foreach ( $mj_mzz_month_results as $mj_mzz_month_result ) //loop through each distinct uri.
+
+
+ 
+	  
+//SELECT * FROM ' . $old_table_name . ' ORDER BY id DESC LIMIT 3
+		$sql = 'DELETE FROM ' . $old_table_name . ' ORDER BY id DESC LIMIT 100';
+
+		$wpdb->query($sql);
+	  
+
+	  
+	  
+	  if($called_by_admin == 1){
+	    echo "<b>Migrated some rows... incremental migration will continue upon page refresh.</b><br/><br/>";
+	  }//end if
+	  
+	  
+	  }
+	
+	
+	
+	}//end if( $wpdb->get_var("SHOW TABLES LIKE '$old_table_name'") == $old_table_name )
+	
+
+	
 }
+
 
 ?>
