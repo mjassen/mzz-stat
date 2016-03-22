@@ -88,7 +88,8 @@ Thanks to CrazyStat ( http://www.christosoft.de/CrazyStat ) for inspiring me and
 
 == Upgrade Notice ==
 
-Check back here for Upgrade notes.
+= 20160320.2203 =
+This version dramatically improves the performance / load-time of the report viewing page. Also This version includes logic to migrate the data from the old mzzstat to the new mzzstat_v2 table, and to remove the old table.
 
 == Installation ==
 
