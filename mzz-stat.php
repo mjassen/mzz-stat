@@ -307,7 +307,7 @@ global $wpdb;
 	if( $wpdb->get_var("SHOW TABLES LIKE '$old_table_name'") == $old_table_name ) {
 	
 	if($called_by_admin == 1){
-	echo "<b>Old mzzstat table exists. Migrating it now--may take several page refreshes, or more, proportionate to how many records were in the old database.</b><br/><br/>";
+	echo "<div style=\"background-color:pink;\"><b>Old mzzstat table exists. Migrating it now, one hundred (100) records at-a-time --may take several page refreshes, or more, proportionate to how many records were in the old database.</b></div><br/><br/>";
 	}
 	
 
@@ -319,7 +319,7 @@ global $wpdb;
 
 	  $wpdb->query('DROP TABLE ' . $old_table_name);
 
-	    echo "<b>Finished migration! Removed old table.</b><br/><br/>";
+	    echo "<div style=\"background-color:limegreen;\"><b>Finished migration! Removed old table. Refresh page once more to continue using mzzstat as normal.</b></div><br/><br/>";
 	  }	  
 
 	  
@@ -394,9 +394,9 @@ foreach ( $mj_mzz_month_results as $mj_mzz_month_result )
 	  
 	  
 	  if($called_by_admin == 1){
-	    echo "<b>Migrated some rows... incremental migration will continue upon page refresh.</b><br/><br/>";
+	    echo "<div style=\"background-color:pink;\"><b>Migrated some rows... incremental migration will continue upon page refresh.</b></div><br/><br/>";
 	  }//end if
-	  
+	 
 	  
 	  }
 	
