@@ -181,7 +181,7 @@ function mzz_mzzstat_admin_page() {
 	echo 'All-time total (Uri (page) Requests) hits: ' . $mzz_total_tally . '<br/><br/>';
 
 	//start building the table
-	$mj_mzz_base_table_string .= '<table border=1">';
+	$mj_mzz_base_table_string .= '<div style="font-size:10px;"><table border=1">';
 
 	//continue to build the table - the table header row.
 	$mj_mzz_base_table_string .= '<tr><th>YYYY-[M]M</th><th>uri</th><th>monthly<br/>hits</th><th>day<br/>01</th><th>day<br/>02</th><th>day<br/>03</th><th>day<br/>04</th><th>day<br/>05</th><th>day<br/>06</th><th>day<br/>07</th><th>day<br/>08</th><th>day<br/>09</th><th>day<br/>10</th><th>day<br/>11</th><th>day<br/>12</th><th>day<br/>13</th><th>day<br/>14</th><th>day<br/>15</th><th>day<br/>16</th><th>day<br/>17</th><th>day<br/>18</th><th>day<br/>19</th><th>day<br/>20</th><th>day<br/>21</th><th>day<br/>22</th><th>day<br/>23</th><th>day<br/>24</th><th>day<br/>25</th><th>day<br/>26</th><th>day<br/>27</th><th>day<br/>28</th><th>day<br/>29</th><th>day<br/>30</th><th>day<br/>31</th></tr>';
@@ -193,7 +193,7 @@ function mzz_mzzstat_admin_page() {
 	foreach ( $mj_mzz_month_results as $mj_mzz_month_result ) //outer loop - loops through all the rows.
 {
 	
-	$mj_mzz_base_table_string .=  '<tr>' . '<td>' . $mj_mzz_month_result->mzzstat_YYYY . '-' . $mj_mzz_month_result->mzzstat_month . '</td><td>' . $mj_mzz_month_result->uri . '</td><td>' . $mj_mzz_month_result->monthly_hits . '</td>' ;
+	$mj_mzz_base_table_string .=  '<tr>' . '<td>' . $mj_mzz_month_result->mzzstat_YYYY . '-' . $mj_mzz_month_result->mzzstat_month . '</td><td><div style="width:100px; word-wrap:break-word;">' . $mj_mzz_month_result->uri . '</div></td><td>' . $mj_mzz_month_result->monthly_hits . '</td>' ;
 
 	
 		for ( $counter = 1; $counter <= 31; $counter ++ ){ //inner loop -- loops through the current row's field values
@@ -217,7 +217,7 @@ function mzz_mzzstat_admin_page() {
 	
 
 	//finish building the table
-	$mj_mzz_base_table_string .= '</table>';
+	$mj_mzz_base_table_string .= '</table></div>';
 
 	//echo the string that represents the html for the table. We built it as we went, now here at the end it is echoed to the Admin dashboard page. 
 	echo $mj_mzz_base_table_string;
