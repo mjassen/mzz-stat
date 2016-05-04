@@ -3,7 +3,7 @@
 * Plugin Name: Mzz-stat
 * Plugin URI: https://wordpress.org/plugins/mzz-stat/
 * Description: A plugin that records statistics for a WordPress site.
-* Version: 20160320.2203
+* Version: 20160503.2046
 * Author: Morgan Jassen
 * Author URI: http://wieldlinux.com/
 * License: GPLv2
@@ -93,7 +93,7 @@ function mzz_include_mzzstat() {
 
 
 	// check the db tables and if necessary update them and migrate the data
-	mzz_mzzstat_upgrade_migrate_db_v1_v2();
+	mzz_mzzstat_upgrade_migrate_db_v1_v2(0);
 
 	
 	global $wpdb;
