@@ -27,7 +27,7 @@
 
 //你好 <- Utf-8 test -- two Utf-8 Chinese characters should appear at the beginning of this line.
 
-/* Install database table if it doesn't already exist*/
+/* Install database table if it doesn't already exist.*/
 register_activation_hook( __FILE__, 'mzz_mzzstat_install' );
 
 function mzz_mzzstat_install() {
