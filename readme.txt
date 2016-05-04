@@ -25,6 +25,9 @@ Thanks to CrazyStat ( http://www.christosoft.de/CrazyStat ) for inspiring me and
 
 ==Changelog==
 
+= 20160503.2046 =
+* Added fix to address ...Missing argument 1 for mzz_mzzstat_upgrade_migrate_db_v1_v2...bug.
+
 = 20160320.2203 =
 * 20 March 2016 by mjjojo(mjassen)
 * Extensive changes including the table schema and reporting format.
