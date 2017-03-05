@@ -2,7 +2,7 @@
 Contributors: mjjojo
 Tags: stats, statistics, hit counter, page views, visits per page per day
 Requires at least: 4.4
-Tested up to: 4.5
+Tested up to: 4.7.2
 Stable tag: trunk
 License: GPLv2
 
@@ -24,6 +24,10 @@ Upon installing and activating the Mzz-stat plugin, it installs its own table in
 Thanks to CrazyStat ( http://www.christosoft.de/CrazyStat ) for inspiring me and thanks to this discussion: ( https://wordpress.org/support/topic/stats-plugin-8 ) for helping steer the direction of the plugin.
 
 ==Changelog==
+
+= 20170304.1423 =
+* 03 March 2017 by mjjojo(mjassen)
+* In this version 20170304.1423 we remove the old database table upgrade logic. More on this: Just before the last mzz-stat plugin v.20160503.2046, there was a notable database table change. In other words if you want to do an upgrade that jumps from before to after plugin version no. 20160503.2046, then please hit version 20160503.2046 along the way, because it contained logic to perform the upgrade from the old table to the new table. This logic isn't present in subsequent versions.
 
 = 20160503.2046 =
 * Added fix to address ...Missing argument 1 for mzz_mzzstat_upgrade_migrate_db_v1_v2...bug
