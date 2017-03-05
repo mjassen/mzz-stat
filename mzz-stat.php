@@ -3,13 +3,13 @@
 * Plugin Name: Mzz-stat
 * Plugin URI: https://wordpress.org/plugins/mzz-stat/
 * Description: A plugin that records statistics for a WordPress site.
-* Version: 20160503.2046
+* Version: 20170304.1423
 * Author: Morgan Jassen
 * Author URI: http://wieldlinux.com/
 * License: GPLv2
 */
 
-/*  Copyright 2016  Morgan Jassen  (email : morgan.jassen@gmail.com)
+/*  Copyright 2017  Morgan Jassen  (email : morgan.jassen@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 //你好 <- Utf-8 test -- two Utf-8 Chinese characters should appear at the beginning of this line.
 
-/* Install database table if it doesn't already exist.*/
+/* Install the database table if it doesn't already exist.*/
 register_activation_hook( __FILE__, 'mzz_mzzstat_install' );
 
 function mzz_mzzstat_install() {
@@ -92,9 +92,6 @@ add_action( 'wp_footer', 'mzz_include_mzzstat', 99 );
 function mzz_include_mzzstat() {
 
 
-	// check the db tables and if necessary update them and migrate the data
-	mzz_mzzstat_upgrade_migrate_db_v1_v2(0);
-
 	
 	global $wpdb;
 
@@ -158,8 +155,6 @@ function mzz_mzzstat_admin_page() {
         <h2>Mzz-stat</h2>
     	<?php
 	
-	// check the db tables and if necessary update them and migrate the data
-	mzz_mzzstat_upgrade_migrate_db_v1_v2(1);
 
 	// Tell the function about the database object
 	global $wpdb;
@@ -229,184 +224,6 @@ function mzz_mzzstat_admin_page() {
 
 } // end function mzz_mzzstat_admin_page
 
-
-function mzz_mzzstat_upgrade_migrate_db_v1_v2($called_by_admin) {
-global $wpdb;
-
-
-
-
-
-
-
-	// Tell the function the name of the mzzstat_v2 table
-	$mzz_table_name = $wpdb->prefix . "mzzstat_v2";
-	
-	// if no new v2 table is not found then create it. Also, if called from the admin then output a message. 
-	if( $wpdb->get_var("SHOW TABLES LIKE '$mzz_table_name'") != $mzz_table_name ) {
-	
-	if($called_by_admin == 1){
-	echo "<b>New mzzstat_v2 table does not exist... Creating it now... Done-- created the mzzstat_v2 table.</b><br/><br/>";
-	}
-	
-	$sql = "CREATE TABLE IF NOT EXISTS $mzz_table_name (
-		id bigint(20) NOT NULL AUTO_INCREMENT,
-		mzzstat_YYYY int(4) NOT NULL,
-		mzzstat_month int(2) NOT NULL,
-		uri varchar(255) NOT NULL,
-		monthly_hits int(8) NOT NULL,
-		hits_day_01 int(8) NOT NULL,
-		hits_day_02 int(8) NOT NULL,
-		hits_day_03 int(8) NOT NULL,
-		hits_day_04 int(8) NOT NULL,
-		hits_day_05 int(8) NOT NULL,
-		hits_day_06 int(8) NOT NULL,
-		hits_day_07 int(8) NOT NULL,
-		hits_day_08 int(8) NOT NULL,
-		hits_day_09 int(8) NOT NULL,
-		hits_day_10 int(8) NOT NULL,
-		hits_day_11 int(8) NOT NULL,
-		hits_day_12 int(8) NOT NULL,
-		hits_day_13 int(8) NOT NULL,
-		hits_day_14 int(8) NOT NULL,
-		hits_day_15 int(8) NOT NULL,
-		hits_day_16 int(8) NOT NULL,
-		hits_day_17 int(8) NOT NULL,
-		hits_day_18 int(8) NOT NULL,
-		hits_day_19 int(8) NOT NULL,
-		hits_day_20 int(8) NOT NULL,
-		hits_day_21 int(8) NOT NULL,
-		hits_day_22 int(8) NOT NULL,
-		hits_day_23 int(8) NOT NULL,
-		hits_day_24 int(8) NOT NULL,
-		hits_day_25 int(8) NOT NULL,
-		hits_day_26 int(8) NOT NULL,
-		hits_day_27 int(8) NOT NULL,
-		hits_day_28 int(8) NOT NULL,
-		hits_day_29 int(8) NOT NULL,
-		hits_day_30 int(8) NOT NULL,
-		hits_day_31 int(8) NOT NULL,
-		UNIQUE KEY id (id),
-		KEY mzzstat_YYYY (mzzstat_YYYY),
-		KEY mzzstat_month (mzzstat_month),
-		KEY uri (uri)
-	);";
-
-	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-	dbDelta( $sql );
-	
-	}
-
-
-
-
-
-	
-	// If an old unused v1 table is found then start/continue to migrate it. Also, if called from admin then output a message.
-	$old_table_name = $wpdb->prefix . "mzzstat";
-	if( $wpdb->get_var("SHOW TABLES LIKE '$old_table_name'") == $old_table_name ) {
-	
-	if($called_by_admin == 1){
-	echo "<div style=\"background-color:pink;\"><b>Old mzzstat table exists. Migrating it now, one hundred (100) records at-a-time --may take several page refreshes, or more, proportionate to how many records were in the old database.</b></div><br/><br/>";
-	}
-	
-
-	$mzz_get_row = $wpdb->get_row( "SELECT * FROM $old_table_name ORDER BY id DESC LIMIT 0,1" );
-	
-	  if($mzz_get_row == NULL){//old table is empty-- drop the old table.
-	  
-	  if($called_by_admin == 1){
-
-	  $wpdb->query('DROP TABLE ' . $old_table_name);
-
-	    echo "<div style=\"background-color:limegreen;\"><b>Finished migration! Removed old table. Refresh page once more to continue using mzzstat as normal.</b></div><br/><br/>";
-	  }	  
-
-	  
-	  }else{//migrate some rows to the new v2 db table
-
-	  
-	  
-	  
-	  
-	
-	  
-	  
-	  
-//select all records between one-month-before-now and 24-hours-from-now (so essentially now allowing for up to 24 hours time zone difference). Group by uri so that there will be one distinct row returned each uri from that time period, and the aggregate function count() will aggregate the number of hits for each uri for us.
-$mj_mzz_month_results = $wpdb->get_results('SELECT * FROM ' . $old_table_name . ' ORDER BY id DESC LIMIT 100');	  
-	  
-	  
-
-foreach ( $mj_mzz_month_results as $mj_mzz_month_result )
-{
-
-
-		$mj_mzz_base_date_time = $mj_mzz_month_result->mzzstat_date;
-		
-		
-		
-		//Convert to a format of YYYY.
-		$mj_mzz_YYYY = date('Y', strtotime($mj_mzz_base_date_time)); 
-		
-		//Convert to a format of [M]M.
-		$mj_mzz_month = date('m', strtotime($mj_mzz_base_date_time)); 
-
-		//Convert to a format of DD.
-		$mj_mzz_DD = date('d', strtotime($mj_mzz_base_date_time)); 
-
-		//Truncate uri to less than 255 chars and add ellipsis before saving it to the database.
-		$mzz_server_request_uri = (strlen($mj_mzz_month_result->mzzstat_uri) > 255) ? substr($mj_mzz_month_result->mzzstat_uri,0,254).'…' : $mj_mzz_month_result->mzzstat_uri;
-
-
-		//Is there already a record in the [xx_]mzzstat_v2 db table where the date is this YYYY & month and the uri is the currently requested uri?
-		$mj_mzz_thismonth_uri_id = $wpdb->get_var('SELECT id FROM ' . $mzz_table_name . ' WHERE mzzstat_YYYY = ' . $mj_mzz_YYYY . ' AND mzzstat_month = ' . $mj_mzz_month . ' AND uri = \'' . $mzz_server_request_uri . '\'');
-
-		if( $wpdb->num_rows == 0 ){ //There isn't already a record. Insert one.
-			$wpdb->insert(
-				$mzz_table_name, 
-				array( 
-					'mzzstat_YYYY' => $mj_mzz_YYYY,
-					'mzzstat_month' => $mj_mzz_month,					
-					'uri' => $mzz_server_request_uri,
-					'monthly_hits' => 1,
-					'hits_day_' . $mj_mzz_DD => 1
-				)
-			);
-		}else{ //There is already a record. Update to increment its hit count.
-
-			$wpdb->query('UPDATE ' . $mzz_table_name . ' SET monthly_hits = (monthly_hits + 1), hits_day_' . $mj_mzz_DD . ' = (hits_day_' . $mj_mzz_DD . ' + 1) WHERE id = ' . $mj_mzz_thismonth_uri_id);
-		} //end else
-
-
-
-} //end foreach ( $mj_mzz_month_results as $mj_mzz_month_result ) //loop through each distinct uri.
-
-
- 
-	  
-//SELECT * FROM ' . $old_table_name . ' ORDER BY id DESC LIMIT 3
-		$sql = 'DELETE FROM ' . $old_table_name . ' ORDER BY id DESC LIMIT 100';
-
-		$wpdb->query($sql);
-	  
-
-	  
-	  
-	  if($called_by_admin == 1){
-	    echo "<div style=\"background-color:pink;\"><b>Migrated some rows... incremental migration will continue upon page refresh.</b></div><br/><br/>";
-	  }//end if
-	 
-	  
-	  }
-	
-	
-	
-	}//end if( $wpdb->get_var("SHOW TABLES LIKE '$old_table_name'") == $old_table_name )
-	
-
-	
-}
 
 
 ?>
