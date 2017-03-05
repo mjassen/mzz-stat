@@ -10,6 +10,8 @@ Shows the WP site administrator how many visits per page per day to their WP sit
 
 == Description ==
 
+Note: Suggested code changes / pull requests are welcome over on the plugin's companion github repository, here: https://github.com/mjassen/mzz-stat
+
 <strong>The Purpose of the plugin</strong>
 The purpose of the plugin is to show the WP site administrator how many visits per page per day to their WP site.
 
